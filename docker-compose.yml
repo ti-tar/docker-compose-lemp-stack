@@ -1,0 +1,38 @@
+version: "3.3"
+services:
+  mysqldb:
+      image: project-mariadb
+      container_name: project-mariadb_conteiner
+      build:
+          context: ./docker-configs/mysqldb
+      environment:
+          - MYSQL_ROOT_PASSWORD=one_more_root_password
+          - MYSQL_DATABASE=project
+          - MYSQL_USER=project_user
+          - MYSQL_PASSWORD=project_strong_password
+      volumes:
+          - mysqldb-data:/var/lib/mysql
+  phpfpm:
+      image: project-phpfpm
+      container_name: project-phpfpm_conteiner
+      build:
+          context: ./docker-configs/php-fpm
+      volumes:
+          - ./www:/var/app
+      expose:
+          - "9000"
+      environment:
+          - "DB_HOST=mysqldb"
+          - "DB_DATABASE=project"
+  nginx:
+      image: project-nginx
+      container_name: project-nginx_conteiner
+
+      build:
+          context: ./docker-configs/nginx
+      ports:
+          - "80:80"
+      volumes:
+          - ./www:/var/app
+volumes:
+    mysqldb-data:
